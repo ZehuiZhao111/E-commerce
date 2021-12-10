@@ -33,7 +33,7 @@ const Login = ({ history }) => {
     // console.table(email, password);
     try {
       const result = await auth.signInWithEmailAndPassword(email, password);
-      // console.log(result);
+      console.log(result);
       const { user } = result;
       const idTokenResult = await user.getIdTokenResult();
 
@@ -148,7 +148,7 @@ const Login = ({ history }) => {
             Login with Google
           </Button>
 
-          <Link to='/forgot/password' className='float-right text-danger'>
+          <Link to='/forgot/password' className='float-right ml-auto text-danger'>
             Froget Password
           </Link>
         </div>

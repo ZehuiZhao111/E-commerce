@@ -41,13 +41,13 @@ const Header = () => {
       </Item>
 
       {!user && (
-        <Item key='register' icon={<UserAddOutlined />} className='float-right'>
+        <Item key='register' icon={<UserAddOutlined />} className='float-right ml-auto'>
           <Link to='/register'>Register</Link>
         </Item>
       )}
 
       {!user && (
-        <Item key='login' icon={<UserOutlined />} className='float-right'>
+        <Item key='login' icon={<UserOutlined />} className='float-right ' >
           <Link to='/login'>Login</Link>
         </Item>
       )}
@@ -56,7 +56,8 @@ const Header = () => {
         <SubMenu
           icon={<SettingOutlined />}
           title={user.email && user.email.split('@')[0]}
-          className='float-right'
+          className='float-right ml-auto'
+          // style={{ marginLeft: 'auto' }}
         >
           {user && user.role === 'subscriber' && (
             <Item>

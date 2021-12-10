@@ -118,12 +118,12 @@ const SubCreate = () => {
               {s.name}
               <span
                 onClick={() => handleRemove(s.slug)}
-                className='btn btn-sm float-right'
+                className='btn btn-sm float-right ml-auto'
               >
                 <DeleteOutlined className='text-danger' />
               </span>
               <Link to={`/admin/sub/${s.slug}`}>
-                <span className='btn btn-sm float-right'>
+                <span className='btn btn-sm float-right ml-auto'>
                   <EditOutlined className='text-warning' />
                 </span>
               </Link>
