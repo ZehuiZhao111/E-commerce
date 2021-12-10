@@ -11,7 +11,7 @@ const AdminNav = () => (
       </li>
       <li className='nav-item'>
         <Link to='/admin/product' className='nav-link'>
-          git test
+          git test 2
         </Link>
       </li>
       <li className='nav-item'>
