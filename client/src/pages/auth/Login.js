@@ -1,41 +1,52 @@
-import React, { useState, useEffect } from 'react';
-import { auth, googleAuthProvider } from '../../firebase';
-import { toast } from 'react-toastify';
-import { Button } from 'antd';
-import { MailOutlined, GoogleOutlined } from '@ant-design/icons';
-import { useDispatch, useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
-import { createOrUpdateUser } from '../../functions/auth';
-
-const roleBasedRedirect = (res, history) => {
-  if (res.data.role === 'admin') {
-    history.push('/admin/dashboard');
-  } else {
-    history.push('user/history');
-  }
-};
+import React, { useState, useEffect } from 'react'
+import { auth, googleAuthProvider } from '../../firebase'
+import { toast } from 'react-toastify'
+import { Button } from 'antd'
+import { MailOutlined, GoogleOutlined } from '@ant-design/icons'
+import { useDispatch, useSelector } from 'react-redux'
+import { Link } from 'react-router-dom'
+import { createOrUpdateUser } from '../../functions/auth'
 
 const Login = ({ history }) => {
-  const [email, setEmail] = useState('zehuizhao1@gmail.com');
-  const [password, setPassword] = useState('123456');
-  const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState('zehuizhao1@gmail.com')
+  const [password, setPassword] = useState('123456')
+  const [loading, setLoading] = useState(false)
+  const { user } = useSelector((state) => ({ ...state }))
 
-  const { user } = useSelector((state) => ({ ...state }));
   useEffect(() => {
-    if (user && user.token) history.push('/');
-  }, [user, history]);
+    const intended = history.location.state
+    if (intended) {
+      return
+    } else {
+      if (user && user.token) history.push('/')
+    }
+  }, [user, history])
 
-  let dispatch = useDispatch();
+  let dispatch = useDispatch()
+
+  const roleBasedRedirect = (res) => {
+    // check if intended
+    const intended = history.location.state
+    if (intended) {
+      history.push(intended.from)
+    } else {
+      if (res.data.role === 'admin') {
+        history.push('/admin/dashboard')
+      } else {
+        history.push('user/history')
+      }
+    }
+  }
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
+    e.preventDefault()
+    setLoading(true)
     // console.table(email, password);
     try {
-      const result = await auth.signInWithEmailAndPassword(email, password);
-      console.log(result);
-      const { user } = result;
-      const idTokenResult = await user.getIdTokenResult();
+      const result = await auth.signInWithEmailAndPassword(email, password)
+      console.log(result)
+      const { user } = result
+      const idTokenResult = await user.getIdTokenResult()
 
       createOrUpdateUser(idTokenResult.token)
         .then((res) => {
@@ -48,24 +59,24 @@ const Login = ({ history }) => {
               role: res.data.role,
               _id: res.data._id,
             },
-          });
+          })
           // redirect user based on role
-          roleBasedRedirect(res, history);
+          roleBasedRedirect(res, history)
         })
-        .catch((err) => console.log(err));
+        .catch((err) => console.log(err))
     } catch (error) {
-      console.log(error);
-      toast.error(error.message);
-      setLoading(false);
+      console.log(error)
+      toast.error(error.message)
+      setLoading(false)
     }
-  };
+  }
 
   const googleLogin = async () => {
     auth
       .signInWithPopup(googleAuthProvider)
       .then(async (result) => {
-        const { user } = result;
-        const idTokenResult = await user.getIdTokenResult();
+        const { user } = result
+        const idTokenResult = await user.getIdTokenResult()
         createOrUpdateUser(idTokenResult.token)
           .then((res) => {
             dispatch({
@@ -77,17 +88,17 @@ const Login = ({ history }) => {
                 role: res.data.role,
                 _id: res.data._id,
               },
-            });
+            })
             // redirect user based on role
-            roleBasedRedirect(res, history);
+            roleBasedRedirect(res, history)
           })
-          .catch((err) => console.log(err));
+          .catch((err) => console.log(err))
       })
       .catch((err) => {
-        console.log(err);
-        toast.error(err.message);
-      });
-  };
+        console.log(err)
+        toast.error(err.message)
+      })
+  }
 
   const loginForm = () => (
     <form onSubmit={handleSubmit}>
@@ -125,7 +136,7 @@ const Login = ({ history }) => {
         Login with Email/Password
       </Button>
     </form>
-  );
+  )
   return (
     <div className='container p-5'>
       <div className='row'>
@@ -148,13 +159,16 @@ const Login = ({ history }) => {
             Login with Google
           </Button>
 
-          <Link to='/forgot/password' className='float-right ml-auto text-danger'>
+          <Link
+            to='/forgot/password'
+            className='float-right ml-auto text-danger'
+          >
             Froget Password
           </Link>
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Login;
+export default Login
