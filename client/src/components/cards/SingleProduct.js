@@ -1,16 +1,18 @@
-import React from 'react';
-import { Card, Tabs } from 'antd';
-import { Link } from 'react-router-dom';
-import { HeartOutlined, ShoppingCartOutlined } from '@ant-design/icons';
-import 'react-responsive-carousel/lib/styles/carousel.min.css';
-import { Carousel } from 'react-responsive-carousel';
-import noimage from '../../images/noimage.png';
-import ProductListItems from './ProductListItems';
+import React from 'react'
+import { Card, Tabs } from 'antd'
+import { Link } from 'react-router-dom'
+import { HeartOutlined, ShoppingCartOutlined } from '@ant-design/icons'
+import 'react-responsive-carousel/lib/styles/carousel.min.css'
+import { Carousel } from 'react-responsive-carousel'
+import noimage from '../../images/noimage.png'
+import ProductListItems from './ProductListItems'
+import StarRating from 'react-star-ratings'
+import RatingModal from '../modal/RatingModal'
 
-const { TabPane } = Tabs;
+const { TabPane } = Tabs
 
 const SingleProduct = ({ product }) => {
-  const { title, images, description } = product;
+  const { title, images, description, _id } = product
   return (
     <>
       <div className='col-md-7'>
@@ -47,13 +49,27 @@ const SingleProduct = ({ product }) => {
             <Link to='/'>
               <HeartOutlined className='text-info' /> <br /> Add To Wishlist
             </Link>,
+            <RatingModal
+              children={
+                <StarRating
+                  name={_id}
+                  rating={2}
+                  numberOfStars={5}
+                  changeRating={(newRating, name) => {
+                    console.log('new rating: ', newRating, ', name: ', name)
+                  }}
+                  isSelectable={true}
+                  starRatedColor='red'
+                />
+              }
+            />,
           ]}
         >
           <ProductListItems product={product} />
         </Card>
       </div>
     </>
-  );
-};
+  )
+}
 
-export default SingleProduct;
+export default SingleProduct
