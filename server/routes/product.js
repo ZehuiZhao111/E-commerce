@@ -1,9 +1,9 @@
-const express = require('express');
+const express = require('express')
 
-const router = express.Router();
+const router = express.Router()
 
 // middlewares
-const { authCheck, adminCheck } = require('../middlewares/auth');
+const { authCheck, adminCheck } = require('../middlewares/auth')
 
 // controllers
 const {
@@ -15,20 +15,24 @@ const {
   list,
   productsCount,
   productStar,
-} = require('../controllers/product');
+  listRelated,
+} = require('../controllers/product')
 
 // routes
-router.post('/product', authCheck, adminCheck, create);
-router.get('/products/total', productsCount);
+router.post('/product', authCheck, adminCheck, create)
+router.get('/products/total', productsCount)
 
-router.get('/products/:count', listAll);
-router.delete('/product/:slug', authCheck, adminCheck, remove);
-router.get('/product/:slug', read);
-router.put('/product/:slug', authCheck, adminCheck, update);
+router.get('/products/:count', listAll)
+router.delete('/product/:slug', authCheck, adminCheck, remove)
+router.get('/product/:slug', read)
+router.put('/product/:slug', authCheck, adminCheck, update)
 
-router.post('/products', list);
+router.post('/products', list)
 
 // rating
-router.put('/product/star/:productId', authCheck, productStar);
+router.put('/product/star/:productId', authCheck, productStar)
 
-module.exports = router;
+// related products
+router.get('/product/related/:productId', listRelated)
+
+module.exports = router
