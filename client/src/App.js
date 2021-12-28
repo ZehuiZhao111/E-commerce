@@ -1,41 +1,43 @@
-import React, { Fragment, useEffect } from 'react';
-import { Switch, Route } from 'react-router-dom';
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import React, { Fragment, useEffect } from 'react'
+import { Switch, Route } from 'react-router-dom'
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
-import Login from './pages/auth/Login';
-import Register from './pages/auth/Register';
-import Home from './pages/Home';
-import Header from './components/nav/Header';
-import RegisterComplete from './pages/auth/RegisterComplete';
-import ForgotPassword from './pages/auth/ForgotPassword';
-import History from './pages/user//History';
-import UserRoute from './components/routes/UserRoute';
-import AdminRoute from './components/routes/AdminRoute';
-import Password from './pages/user/Password';
-import Wishlist from './pages/user/Wishlist';
-import AdminDashboard from './pages/admin/AdminDashboard';
-import CategoryCreate from './pages/admin/category/CategoryCreate';
-import CategoryUpdate from './pages/admin/category/CategoryUpdate';
-import SubCreate from './pages/admin/sub/SubCreate';
-import SubUpdate from './pages/admin/sub/SubUpdate';
-import ProductCreate from './pages/admin/product/ProductCreate';
-import AllProducts from './pages/admin/product/AllProducts';
-import ProductUpdate from './pages/admin/product/ProductUpdate';
-import Product from './pages/Product';
+import Login from './pages/auth/Login'
+import Register from './pages/auth/Register'
+import Home from './pages/Home'
+import Header from './components/nav/Header'
+import RegisterComplete from './pages/auth/RegisterComplete'
+import ForgotPassword from './pages/auth/ForgotPassword'
+import History from './pages/user//History'
+import UserRoute from './components/routes/UserRoute'
+import AdminRoute from './components/routes/AdminRoute'
+import Password from './pages/user/Password'
+import Wishlist from './pages/user/Wishlist'
+import AdminDashboard from './pages/admin/AdminDashboard'
+import CategoryCreate from './pages/admin/category/CategoryCreate'
+import CategoryUpdate from './pages/admin/category/CategoryUpdate'
+import SubCreate from './pages/admin/sub/SubCreate'
+import SubUpdate from './pages/admin/sub/SubUpdate'
+import ProductCreate from './pages/admin/product/ProductCreate'
+import AllProducts from './pages/admin/product/AllProducts'
+import ProductUpdate from './pages/admin/product/ProductUpdate'
+import Product from './pages/Product'
+import CategoryHome from './pages/category/CategoryHome'
+import SubHome from './pages/category/SubHome'
 
-import { auth } from './firebase';
-import { useDispatch } from 'react-redux';
-import { currentUser } from './functions/auth';
+import { auth } from './firebase'
+import { useDispatch } from 'react-redux'
+import { currentUser } from './functions/auth'
 
 const App = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch()
 
   // check firebase auth state
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
       if (user) {
-        const idTokenResult = await user.getIdTokenResult();
+        const idTokenResult = await user.getIdTokenResult()
         currentUser(idTokenResult.token)
           .then((res) => {
             dispatch({
@@ -47,15 +49,15 @@ const App = () => {
                 role: res.data.role,
                 _id: res.data._id,
               },
-            });
+            })
           })
-          .catch((err) => console.log(err));
+          .catch((err) => console.log(err))
       }
-    });
+    })
 
     // clean up
-    return () => unsubscribe();
-  }, [dispatch]);
+    return () => unsubscribe()
+  }, [dispatch])
   return (
     <Fragment>
       <Header />
@@ -86,9 +88,11 @@ const App = () => {
           component={ProductUpdate}
         />
         <Route exact path='/product/:slug' component={Product} />
+        <Route exact path='/category/:slug' component={CategoryHome} />
+        <Route exact path='/sub/:slug' component={SubHome} />
       </Switch>
     </Fragment>
-  );
-};
+  )
+}
 
-export default App;
+export default App
