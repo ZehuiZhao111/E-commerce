@@ -1,6 +1,7 @@
 const Product = require('../models/product')
 const User = require('../models/user')
 const slugify = require('slugify')
+const { query } = require('express')
 
 // db operations here
 exports.create = async (req, res) => {
@@ -148,9 +149,7 @@ exports.productStar = async (req, res) => {
 }
 
 exports.listRelated = async (req, res) => {
-  console.log('asdsad')
   const product = await Product.findById(req.params.productId).exec()
-  console.log(product)
 
   const related = await Product.find({
     _id: { $ne: product._id },
@@ -162,4 +161,23 @@ exports.listRelated = async (req, res) => {
     .populate('postedBy')
     .exec()
   res.json(related)
+}
+
+// search filter
+const handleQuery = async (res, query) => {
+  const products = await Product.find({ $text: { $search: query } })
+    .populate('category', '_id name')
+    .populate('_id name')
+    .populate('postedBy', '_id name')
+    .exec()
+  res.json(products)
+}
+
+exports.searchFilters = async (req, res) => {
+  const { query } = req.body
+
+  if (query) {
+    console.log('query')
+    await handleQuery(res, query)
+  }
 }
