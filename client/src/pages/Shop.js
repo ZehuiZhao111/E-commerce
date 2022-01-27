@@ -4,7 +4,12 @@ import { getCategories } from '../functions/category'
 import { useSelector, useDispatch } from 'react-redux'
 import ProductCard from '../components/cards/ProductCard'
 import { Menu, Slider, Checkbox } from 'antd'
-import { DollarOutlined, DownSquareOutlined } from '@ant-design/icons'
+import {
+  DollarOutlined,
+  DownSquareOutlined,
+  StarOutlined,
+} from '@ant-design/icons'
+import Star from '../components/forms/Star'
 
 const { SubMenu, ItemGroup } = Menu
 
@@ -15,6 +20,7 @@ const Shop = () => {
   const [ok, setOk] = useState(false)
   const [categories, setCategories] = useState([])
   const [categoryIds, setCategoryIds] = useState([])
+  const [star, setStar] = useState('')
 
   const dispatch = useDispatch()
   const { search } = useSelector((state) => ({ ...state }))
@@ -24,6 +30,9 @@ const Shop = () => {
     const delayed = setTimeout(() => {
       fetchProducts({ query: text })
     }, 300)
+    setPrice([0, 0])
+    setCategoryIds([])
+    setStar('')
     return () => clearTimeout(delayed)
   }, [text])
 
@@ -44,7 +53,22 @@ const Shop = () => {
   }
 
   const fetchProducts = (arg) => {
-    if (arg.query !== '' || arg.price || arg.category) {
+    if (star != '' && arg.query === '') {
+      return
+    }
+    if (categoryIds.length > 0 && arg.query === '') {
+      return
+    }
+    if (!(price[0] === 0 && price[1] === 0) && arg.query === '') {
+      return
+    }
+
+    if (
+      (arg.query && arg.query !== '') ||
+      (arg.price && !(arg.price[0] === 0 && arg.price[1] === 0)) ||
+      (arg.category && arg.category.length > 0) ||
+      (arg.stars && arg.stars !== '')
+    ) {
       setLoading(true)
       fetchProductsByFilter(arg).then((res) => {
         setProducts(res.data)
@@ -62,12 +86,14 @@ const Shop = () => {
     })
     setCategoryIds([])
     setPrice(value)
+    setStar('')
     setTimeout(() => {
       setOk(!ok)
     }, 300)
   }
 
   const showCategories = () => {
+    console.log(categoryIds)
     return categories.map((c) => (
       <div key={c._id}>
         <Checkbox
@@ -85,11 +111,13 @@ const Shop = () => {
   }
 
   const handleCheck = (e) => {
+    console.log(e.target.value)
     dispatch({
       type: 'SEARCH_QUERY',
       payload: { text: '' },
     })
     setPrice([0, 0])
+    setStar('')
     const inTheState = [...categoryIds]
     const justChecked = e.target.value
     const foundInTheState = inTheState.indexOf(justChecked)
@@ -102,13 +130,33 @@ const Shop = () => {
     fetchProducts({ category: inTheState })
   }
 
+  const handleStarClick = (num) => {
+    dispatch({
+      type: 'SEARCH_QUERY',
+      payload: { text: '' },
+    })
+    setStar(num)
+    setPrice([0, 0])
+    setCategoryIds([])
+    fetchProducts({ stars: num })
+  }
+  const showStars = () => (
+    <div className='pr-4 pl-4 pb-2'>
+      <Star starClick={handleStarClick} numberOfStars={5} />
+      <Star starClick={handleStarClick} numberOfStars={4} />
+      <Star starClick={handleStarClick} numberOfStars={3} />
+      <Star starClick={handleStarClick} numberOfStars={2} />
+      <Star starClick={handleStarClick} numberOfStars={1} />
+    </div>
+  )
+
   return (
     <div className='container-fluid'>
       <div className='row'>
         <div className='col-md-3 pt-2'>
           <h4>Search / Filters</h4>
           <hr />
-          <Menu defaultOpenKeys={['1', '2']} mode='inline'>
+          <Menu defaultOpenKeys={['1', '2', '3']} mode='inline'>
             {/* price */}
             <SubMenu
               key='1'
@@ -140,6 +188,18 @@ const Shop = () => {
               }
             >
               <div style={{ marginTop: '-10px' }}>{showCategories()}</div>
+            </SubMenu>
+
+            {/* stars */}
+            <SubMenu
+              key='3'
+              title={
+                <span className='h6'>
+                  <StarOutlined /> Rating
+                </span>
+              }
+            >
+              <div style={{ marginTop: '-10px' }}>{showStars()}</div>
             </SubMenu>
           </Menu>
         </div>
