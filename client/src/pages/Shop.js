@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import { getProductsByCount, fetchProductsByFilter } from '../functions/product'
+import { getCategories } from '../functions/category'
 import { useSelector, useDispatch } from 'react-redux'
 import ProductCard from '../components/cards/ProductCard'
-import { Menu, Slider } from 'antd'
-import { DollarOutlined } from '@ant-design/icons'
+import { Menu, Slider, Checkbox } from 'antd'
+import { DollarOutlined, DownSquareOutlined } from '@ant-design/icons'
 
 const { SubMenu, ItemGroup } = Menu
 
@@ -12,6 +13,8 @@ const Shop = () => {
   const [loading, setLoading] = useState(false)
   const [price, setPrice] = useState([0, 0])
   const [ok, setOk] = useState(false)
+  const [categories, setCategories] = useState([])
+  const [categoryIds, setCategoryIds] = useState([])
 
   const dispatch = useDispatch()
   const { search } = useSelector((state) => ({ ...state }))
@@ -28,6 +31,10 @@ const Shop = () => {
     fetchProducts({ price: price })
   }, [ok])
 
+  useEffect(() => {
+    getCategories().then((res) => setCategories(res.data))
+  }, [])
+
   const loadAllProducts = () => {
     setLoading(true)
     getProductsByCount(12).then((res) => {
@@ -37,12 +44,9 @@ const Shop = () => {
   }
 
   const fetchProducts = (arg) => {
-    console.log(arg)
-    if (arg.query !== '' || arg.price) {
-      console.log('get in')
+    if (arg.query !== '' || arg.price || arg.category) {
       setLoading(true)
       fetchProductsByFilter(arg).then((res) => {
-        console.log(res)
         setProducts(res.data)
         setLoading(false)
       })
@@ -56,10 +60,46 @@ const Shop = () => {
       type: 'SEARCH_QUERY',
       payload: { text: '' },
     })
+    setCategoryIds([])
     setPrice(value)
     setTimeout(() => {
       setOk(!ok)
     }, 300)
+  }
+
+  const showCategories = () => {
+    return categories.map((c) => (
+      <div key={c._id}>
+        <Checkbox
+          onChange={handleCheck}
+          className='pb-2 pl-4 pr-4'
+          value={c._id}
+          checked={categoryIds.includes(c._id)}
+          name='category'
+        >
+          {c.name}
+        </Checkbox>
+        <br />
+      </div>
+    ))
+  }
+
+  const handleCheck = (e) => {
+    dispatch({
+      type: 'SEARCH_QUERY',
+      payload: { text: '' },
+    })
+    setPrice([0, 0])
+    const inTheState = [...categoryIds]
+    const justChecked = e.target.value
+    const foundInTheState = inTheState.indexOf(justChecked)
+    if (foundInTheState === -1) {
+      inTheState.push(justChecked)
+    } else {
+      inTheState.splice(foundInTheState, 1)
+    }
+    setCategoryIds(inTheState)
+    fetchProducts({ category: inTheState })
   }
 
   return (
@@ -69,6 +109,7 @@ const Shop = () => {
           <h4>Search / Filters</h4>
           <hr />
           <Menu defaultOpenKeys={['1', '2']} mode='inline'>
+            {/* price */}
             <SubMenu
               key='1'
               title={
@@ -88,20 +129,29 @@ const Shop = () => {
                 />
               </div>
             </SubMenu>
+
+            {/* category */}
+            <SubMenu
+              key='2'
+              title={
+                <span className='h6'>
+                  <DownSquareOutlined /> Catrgories
+                </span>
+              }
+            >
+              <div style={{ marginTop: '-10px' }}>{showCategories()}</div>
+            </SubMenu>
           </Menu>
         </div>
         <div className='col-md-9 pt-2'>
           {loading ? (
             <h4 className='text-danger'>Loading...</h4>
-          ) : text === '' && price[1] === 0 ? (
-            <h4 className='text-danger'>We recommend these products for you</h4>
           ) : (
             <h4 className='text-danger'>
               {products.length} {products.length > 1 ? 'products' : 'product'}{' '}
               found
             </h4>
           )}
-          {products.length < 1 && <p>No products found</p>}
           <div className='row pb-5'>
             {products.map((product) => (
               <div key={product._id} className='col-md-4 mt-3'>
